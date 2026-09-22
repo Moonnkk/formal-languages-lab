@@ -1,0 +1,96 @@
+/* Styles for the core surfaces: dashboard, learning path, daily review, settings. */
+
+/* ---------- dashboard ---------- */
+.hero { display: flex; gap: 20px; align-items: center;
+  background: linear-gradient(135deg, var(--bg-raised), var(--panel)); }
+.hero-ring { position: relative; flex: none; display: grid; place-items: center; }
+.hero-ring svg { display: block; }
+.hero-pct { position: absolute; inset: 0; display: grid; place-items: center;
+  font-size: .85rem; font-weight: 700; color: var(--magic); }
+.hero-body { flex: 1; min-width: 0; }
+.hero-body h2 { margin: 2px 0 6px; }
+.hero-body p { margin-bottom: 12px; }
+
+.tile { text-align: center; padding: 16px 12px; }
+.tile.clickable { cursor: pointer; transition: .15s; }
+.tile.clickable:hover { border-color: var(--accent); transform: translateY(-1px); }
+.tile-n { font-size: 1.7rem; font-weight: 750; line-height: 1.1; font-family: var(--mono); }
+
+.stat { text-align: center; padding: 14px 10px; }
+.stat-n { font-size: 1.6rem; font-weight: 750; font-family: var(--mono); line-height: 1.1; }
+
+.unit-list { display: flex; flex-direction: column; gap: 8px; }
+.unit-row { display: flex; gap: 14px; align-items: center; cursor: pointer;
+  background: var(--bg-raised); border: 1px solid var(--border);
+  border-radius: var(--r-md); padding: 12px 14px; transition: .15s; }
+.unit-row:hover { border-color: var(--accent); }
+.unit-ch { font-family: var(--mono); font-size: .72rem; color: var(--text-faint);
+  flex: none; width: 46px; }
+.unit-main { flex: 1; min-width: 0; }
+
+.weak-card p { margin: 6px 0 10px; }
+
+.method summary { cursor: pointer; font-weight: 600; }
+.method summary::marker { color: var(--text-faint); }
+.method > div { margin-top: 12px; }
+
+/* ---------- learning path ---------- */
+.unit-head { display: flex; align-items: center; gap: 10px; margin: 30px 0 4px; }
+.path-track { display: flex; flex-direction: column; gap: 0; margin: 12px 0 8px;
+  position: relative; }
+.path-node { display: flex; gap: 14px; padding: 10px 12px; cursor: pointer;
+  border-radius: var(--r-md); border: 1px solid transparent; transition: .12s; position: relative; }
+.path-node:hover { background: var(--bg-raised); border-color: var(--border); }
+.path-node:not(:last-child)::before {
+  content: ''; position: absolute; left: 25px; top: 38px; bottom: -4px;
+  width: 2px; background: var(--border); }
+.pn-dot { flex: none; width: 28px; height: 28px; border-radius: 50%;
+  display: grid; place-items: center; font-size: .72rem; font-weight: 700;
+  background: var(--bg-sunken); border: 2px solid var(--border-strong);
+  color: var(--text-faint); z-index: 1; }
+.path-node.open  .pn-dot { border-color: var(--accent); color: var(--accent); }
+.path-node.started .pn-dot { border-color: var(--warn); color: var(--warn); }
+.path-node.solid .pn-dot { border-color: var(--good); background: var(--good-soft); color: var(--good); }
+.path-node.locked { opacity: .55; }
+.pn-body { flex: 1; min-width: 0; }
+
+.predict.answered textarea { opacity: .6; pointer-events: none; }
+.predict .eyebrow, .card .eyebrow { font-size: .68rem; text-transform: uppercase;
+  letter-spacing: .09em; color: var(--text-faint); margin-bottom: 4px; }
+
+/* ---------- daily review ---------- */
+.review-top { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
+
+.flashcard { max-width: 660px; margin: 0 auto; padding: 24px; }
+.fc-front { font-size: 1.15rem; line-height: 1.5; margin: 18px 0 6px; }
+.fc-front code { background: var(--bg-sunken); padding: 1px 5px; border-radius: 4px; font-size: .92em; }
+.fc-back { margin-top: 16px; padding-top: 16px; border-top: 1px dashed var(--border-strong);
+  color: var(--text); font-size: 1rem; }
+.fc-back code { background: var(--bg-sunken); padding: 1px 5px; border-radius: 4px; font-size: .92em; }
+.fc-actions { display: flex; align-items: center; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+.fc-grades { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 20px; }
+.fc-grades button { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 10px 6px; }
+.fc-grades .gh { font-size: .68rem; }
+@media (max-width: 620px) { .fc-grades { grid-template-columns: repeat(2, 1fr); } }
+
+.deck-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 8px; }
+.deck-chip { background: var(--bg-raised); border: 1px solid var(--border);
+  border-radius: var(--r-sm); padding: 10px 12px; cursor: pointer; transition: .12s; }
+.deck-chip:hover { border-color: var(--accent); }
+
+/* ---------- misc ---------- */
+.math { font-family: var(--mono); font-size: .95em; }
+ul.small { padding-left: 20px; margin: 8px 0 0; }
+ul.small li { margin-bottom: 3px; }
+
+/* ---------- phone ---------- */
+@media (max-width: 620px) {
+  /* the ring beside the text squeezes the recommendation into a narrow column */
+  .hero { flex-direction: column; align-items: flex-start; gap: 14px; }
+  .hero-ring { align-self: center; }
+  /* four one-per-screen tiles is a lot of scrolling for four numbers */
+  .grid.c3 { grid-template-columns: repeat(2, 1fr); }
+  .tile-n, .stat-n { font-size: 1.45rem; }
+  .unit-ch { width: 40px; }
+  .deck-grid { grid-template-columns: repeat(2, 1fr); }
+}

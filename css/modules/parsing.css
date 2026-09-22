@@ -1,0 +1,173 @@
+/* ==========================================================================
+   parsing.css — Grammar Lab + Parser Lab
+   Owned by: parsing. Tokens only, no hard-coded colours.
+   ========================================================================== */
+
+/* ---------- shared chrome ---------- */
+.pz-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+.pz-tabs button { border-radius: 20px; }
+.pz-tabs button.on { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+
+.pz-split { display: grid; gap: 14px; grid-template-columns: minmax(280px, 1fr) minmax(280px, 1.15fr); align-items: start; }
+@media (max-width: 900px) { .pz-split { grid-template-columns: 1fr; } }
+
+.pz-sub { font-size: .72rem; text-transform: uppercase; letter-spacing: .09em; color: var(--text-faint); margin-bottom: 6px; }
+.pz-scroll { overflow-x: auto; }
+.pz-mono { font-family: var(--mono); }
+
+/* ---------- grammar editor ---------- */
+.pz-editor textarea { min-height: 190px; line-height: 1.6; }
+.pz-diag { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
+.pz-diag .d { display: flex; gap: 8px; align-items: baseline; font-size: .84rem;
+  padding: 7px 10px; border-radius: var(--r-sm); border-left: 3px solid var(--bad); background: var(--bad-soft); }
+.pz-diag .d.warn { border-color: var(--warn); background: var(--warn-soft); }
+.pz-diag .d.good { border-color: var(--good); background: var(--good-soft); }
+.pz-diag .ln { font-family: var(--mono); font-size: .74rem; color: var(--text-faint); flex: none; }
+
+.pz-gallery { display: flex; flex-wrap: wrap; gap: 6px; }
+.pz-gallery button { text-align: left; }
+
+.pz-rules { display: flex; flex-direction: column; gap: 3px; font-family: var(--mono); font-size: .84rem; }
+.pz-rules .r { display: flex; gap: 10px; padding: 3px 6px; border-radius: 4px; }
+.pz-rules .r:hover { background: var(--bg-sunken); }
+.pz-rules .r .n { color: var(--text-faint); min-width: 2.2em; text-align: right; }
+.pz-rules .r.on { background: var(--accent-soft); }
+
+.pz-sym { font-family: var(--mono); font-size: .8rem; padding: 1px 6px; border-radius: 4px;
+  border: 1px solid var(--border); background: var(--bg-sunken); }
+.pz-sym.v { color: var(--accent); border-color: var(--accent-soft); }
+.pz-sym.t { color: var(--good); border-color: var(--good-soft); }
+.pz-sym.eof { color: var(--magic); border-color: var(--magic-soft); }
+
+/* ---------- sentential form / derivation ---------- */
+.pz-form { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; font-family: var(--mono);
+  padding: 10px; background: var(--bg-sunken); border-radius: var(--r-md); min-height: 44px; }
+.pz-form .s { padding: 3px 8px; border-radius: 5px; border: 1px solid transparent; }
+.pz-form .s.term { color: var(--good); }
+.pz-form .s.var { color: var(--accent); background: var(--accent-soft); border-color: var(--accent-soft); cursor: pointer; }
+.pz-form .s.var:hover { border-color: var(--accent); }
+.pz-form .s.var.next { box-shadow: 0 0 0 2px var(--accent-soft); font-weight: 700; }
+.pz-form .s.var.picked { background: var(--magic-soft); color: var(--magic); border-color: var(--magic); }
+.pz-form .s.eps { color: var(--text-faint); }
+
+.pz-steps { display: flex; flex-direction: column; gap: 2px; font-family: var(--mono); font-size: .82rem; max-height: 320px; overflow: auto; }
+.pz-steps .st { display: flex; gap: 8px; padding: 4px 8px; border-radius: 5px; cursor: default; }
+.pz-steps .st:hover, .pz-steps .st.hot { background: var(--accent-soft); }
+.pz-steps .st .ar { color: var(--text-faint); flex: none; }
+.pz-steps .st .why { color: var(--text-faint); font-size: .72rem; margin-left: auto; white-space: nowrap; }
+
+.pz-choices { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.pz-choices button { font-family: var(--mono); font-size: .8rem; }
+
+/* ---------- parse trees ---------- */
+.pz-tree { overflow: auto; background: var(--bg-sunken); border-radius: var(--r-md); padding: 6px; }
+.tree-svg { display: block; max-width: 100%; height: auto; font-family: var(--mono); font-size: 12px; }
+.tree-edge { stroke: var(--border-strong); stroke-width: 1.4; }
+.tree-edge.on { stroke: var(--accent); stroke-width: 2.4; }
+.tree-node rect { fill: var(--panel); stroke: var(--border-strong); stroke-width: 1; }
+.tree-node text { fill: var(--text); dominant-baseline: middle; }
+.tree-node.v rect { fill: var(--accent-soft); stroke: var(--accent); }
+.tree-node.v text { fill: var(--accent); }
+.tree-node.t rect { fill: var(--bg-raised); stroke: var(--good); }
+.tree-node.t text { fill: var(--good); }
+.tree-node.eps rect { fill: transparent; stroke: var(--border); stroke-dasharray: 3 3; }
+.tree-node.eps text { fill: var(--text-faint); }
+.tree-node.hi rect, .tree-node.sub rect { stroke: var(--magic); stroke-width: 2.4; fill: var(--magic-soft); }
+.tree-node.hi text, .tree-node.sub text { fill: var(--magic); }
+.tree-node { cursor: pointer; }
+
+.pz-trees2 { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); }
+
+/* ---------- set tables (First / Follow / action / goto) ---------- */
+.pz-table { border-collapse: collapse; font-family: var(--mono); font-size: .82rem; width: 100%; }
+.pz-table th, .pz-table td { border: 1px solid var(--border); padding: 5px 8px; text-align: left; white-space: nowrap; }
+.pz-table th { background: var(--bg-sunken); color: var(--text-dim); font-weight: 600; font-size: .76rem; }
+.pz-table td.num, .pz-table th.num { text-align: center; color: var(--text-faint); }
+.pz-table tr:hover td { background: var(--bg-sunken); }
+.pz-table td.ok { background: var(--good-soft); color: var(--good); }
+.pz-table td.err { background: var(--bad-soft); color: var(--bad); }
+.pz-table td.conflict { background: var(--bad-soft); outline: 2px solid var(--bad); outline-offset: -2px; }
+.pz-table td.hot { background: var(--accent-soft); }
+.pz-table input { width: 100%; min-width: 130px; padding: 4px 6px; font-family: var(--mono); font-size: .8rem; }
+.pz-table .shift { color: var(--accent); }
+.pz-table .reduce { color: var(--warn); }
+.pz-table .accept { color: var(--good); font-weight: 700; }
+
+/* ---------- fixed-point replay ---------- */
+.pz-rounds { display: flex; flex-direction: column; gap: 8px; }
+.pz-round { border: 1px solid var(--border); border-radius: var(--r-md); padding: 10px 12px; background: var(--bg-sunken); }
+.pz-round h4 { margin: 0 0 6px; font-size: .8rem; color: var(--text-dim); }
+.pz-round .add { font-size: .8rem; padding: 3px 0; color: var(--text-dim); }
+.pz-round .add b { color: var(--good); font-family: var(--mono); }
+
+/* ---------- shift-reduce playground ---------- */
+.pz-config { display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; align-items: stretch; }
+@media (max-width: 720px) { .pz-config { grid-template-columns: 1fr; } }
+.pz-stack, .pz-input { background: var(--bg-sunken); border-radius: var(--r-md); padding: 10px; min-height: 64px; }
+.pz-stack { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+.pz-input { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; justify-content: flex-end; }
+.pz-cell { font-family: var(--mono); font-size: .84rem; padding: 4px 9px; border-radius: 5px;
+  background: var(--panel); border: 1px solid var(--border); }
+.pz-cell.state { color: var(--text-faint); font-size: .72rem; padding: 2px 6px; }
+.pz-cell.sym { color: var(--accent); border-color: var(--accent-soft); background: var(--accent-soft); }
+.pz-cell.tok { color: var(--good); border-color: var(--good-soft); }
+.pz-cell.look { outline: 2px solid var(--accent); }
+.pz-cell.handle { background: var(--magic-soft); border-color: var(--magic); color: var(--magic); }
+.pz-bar { display: grid; place-items: center; color: var(--text-faint); font-size: .74rem; }
+
+.pz-log { font-size: .82rem; display: flex; flex-direction: column; gap: 4px; max-height: 240px; overflow: auto; }
+.pz-log .e { padding: 5px 9px; border-radius: var(--r-sm); background: var(--bg-sunken); border-left: 3px solid var(--border-strong); }
+.pz-log .e.shift { border-color: var(--accent); }
+.pz-log .e.reduce { border-color: var(--warn); }
+.pz-log .e.accept { border-color: var(--good); }
+.pz-log .e.error { border-color: var(--bad); }
+
+/* ---------- LR(0) automaton ---------- */
+.pz-graph { overflow: auto; background: var(--bg-sunken); border-radius: var(--r-md); padding: 8px; }
+.pz-graph svg { font-family: var(--mono); font-size: 11px; display: block; }
+.lr-state rect { fill: var(--panel); stroke: var(--border-strong); stroke-width: 1.2; }
+.lr-state text { fill: var(--text-dim); }
+.lr-state.on rect { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 2.2; }
+.lr-state.on text { fill: var(--accent); }
+.lr-state.conf rect { stroke: var(--bad); stroke-dasharray: 4 3; }
+.lr-state { cursor: pointer; }
+.lr-edge { stroke: var(--border-strong); fill: none; stroke-width: 1.2; marker-end: url(#pz-arrow); }
+.lr-edge.on { stroke: var(--accent); stroke-width: 2; }
+.lr-lab { fill: var(--text-faint); font-size: 10px; }
+.lr-lab.on { fill: var(--accent); }
+
+.pz-items { font-family: var(--mono); font-size: .84rem; display: flex; flex-direction: column; gap: 3px; }
+.pz-items .it { padding: 3px 8px; border-radius: 4px; }
+.pz-items .it.kernel { background: var(--accent-soft); color: var(--accent); }
+.pz-items .it.closed { color: var(--text-dim); }
+.pz-items .it .from { color: var(--text-faint); font-size: .72rem; }
+
+/* ---------- Earley chart ---------- */
+.pz-qsets { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+.pz-qsets button { font-family: var(--mono); min-width: 46px; }
+.pz-qsets button.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+.pz-qsets button.done { border-color: var(--good); color: var(--good); }
+
+.pz-objs { display: flex; flex-direction: column; gap: 4px; }
+.pz-obj { display: flex; gap: 10px; align-items: baseline; padding: 6px 10px; border-radius: var(--r-sm);
+  background: var(--bg-sunken); border-left: 3px solid var(--border-strong); font-family: var(--mono); font-size: .84rem; cursor: pointer; }
+.pz-obj.predict { border-color: var(--accent); }
+.pz-obj.scan    { border-color: var(--good); }
+.pz-obj.complete{ border-color: var(--magic); }
+.pz-obj.init    { border-color: var(--warn); }
+.pz-obj .tagop { font-size: .68rem; text-transform: uppercase; letter-spacing: .06em; color: var(--text-faint); margin-left: auto; }
+.pz-obj.open { background: var(--panel); }
+.pz-why { font-family: var(--sans); font-size: .82rem; color: var(--text-dim); padding: 2px 12px 8px 24px; }
+
+.pz-word { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; font-family: var(--mono); }
+.pz-word .tk { padding: 3px 9px; border-radius: 5px; background: var(--bg-sunken); border: 1px solid var(--border); }
+.pz-word .tk.past { color: var(--text-faint); }
+.pz-word .tk.now { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+.pz-word .ix { font-size: .66rem; color: var(--text-faint); }
+
+/* ---------- misc ---------- */
+.pz-kv { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: .84rem; }
+.pz-kv b { color: var(--text-dim); font-weight: 600; }
+.pz-hint { font-size: .84rem; color: var(--text-dim); }
+.pz-fade { border: 1px dashed var(--border-strong); border-radius: var(--r-md); padding: 8px 12px; font-size: .82rem; color: var(--text-dim); }
+.pz-q { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }

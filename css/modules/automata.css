@@ -1,0 +1,257 @@
+/* ==========================================================================
+   Regex Lab · Automaton Lab · Subset Race
+   Tokens only — no literal colours, so the light theme comes for free.
+   ========================================================================== */
+
+/* ---------- shared: automaton drawings, tables, logs ---------- */
+.aut-wrap {
+  background: var(--bg-sunken);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 10px;
+  margin: 10px 0;
+  overflow-x: auto;
+  text-align: center;
+}
+.aut-wrap svg { display: inline-block; }
+.aut-node { transition: opacity .18s; }
+
+.aut-scroll { overflow-x: auto; margin: 10px 0; }
+.aut-table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: .82rem;
+}
+.aut-table th, .aut-table td {
+  border-bottom: 1px solid var(--border);
+  padding: 5px 9px;
+  text-align: left;
+  white-space: nowrap;
+}
+.aut-table th {
+  color: var(--text-faint);
+  font-weight: 600;
+  font-size: .72rem;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+.aut-table td.mono, .aut-table th.mono { font-family: var(--mono); }
+.aut-table tbody tr:hover { background: var(--bg-sunken); }
+.aut-table tr.sel { background: var(--accent-soft); }
+
+.aut-log {
+  margin: 10px 0 0;
+  padding-left: 20px;
+  font-size: .84rem;
+  color: var(--text-dim);
+}
+.aut-log li { margin: 3px 0; }
+
+/* ---------- the tape ---------- */
+.tape {
+  position: relative;
+  display: flex;
+  gap: 2px;
+  margin: 12px 0 6px;
+  padding-bottom: 14px;
+  min-height: 46px;
+}
+.tape-cell {
+  width: 24px; height: 28px;
+  display: grid; place-items: center;
+  font-family: var(--mono); font-size: .9rem;
+  background: var(--bg-sunken);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  color: var(--text);
+}
+.tape-cell.done { color: var(--text-faint); border-color: var(--border); opacity: .6; }
+.tape-cell.here { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); font-weight: 700; }
+.tape-head {
+  position: absolute; bottom: 0; width: 24px; height: 10px;
+  border-top: 2px solid var(--accent);
+  transition: left .18s ease;
+}
+.tape-head::after {
+  content: '▲'; position: absolute; left: 50%; top: -2px;
+  transform: translate(-50%, 0); font-size: .6rem; color: var(--accent);
+}
+
+/* ==========================================================================
+   Regex Lab
+   ========================================================================== */
+.rx-err { display: none; }
+.rx-err.show {
+  display: block;
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-left: 3px solid var(--bad);
+  background: var(--bad-soft);
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+}
+.rx-caret { color: var(--bad); white-space: pre; line-height: 1; margin-bottom: 4px; }
+
+.rx-stages { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 14px; }
+.rx-stage {
+  font-size: .8rem; padding: 6px 12px;
+  background: var(--bg-sunken); border: 1px solid var(--border);
+  border-radius: 20px; color: var(--text-dim);
+}
+.rx-stage.on {
+  background: var(--accent-soft); border-color: var(--accent);
+  color: var(--accent); font-weight: 650;
+}
+
+/* syntax tree */
+.rx-tree { overflow-x: auto; padding: 14px 4px; display: flex; justify-content: center; }
+.tn { display: flex; flex-direction: column; align-items: center; position: relative; }
+.tn-label {
+  font-family: var(--mono); font-size: .86rem;
+  padding: 3px 9px; border-radius: var(--r-sm);
+  background: var(--panel); border: 1px solid var(--border-strong);
+  color: var(--accent); white-space: nowrap;
+}
+.tn-label.leaf { color: var(--text); background: var(--bg-sunken); border-style: dashed; }
+/* Tree connectors: a drop from the parent, a horizontal rail across the
+   children's centres, and a riser into each child. Without the rail the
+   two stubs float unconnected as soon as the children are spread apart. */
+.tn-kids { display: flex; gap: 14px; position: relative; }
+.tn-kids::before {                       /* drop from the parent label */
+  content: ''; position: absolute; top: 0; left: 50%; width: 1px; height: 9px;
+  background: var(--border-strong);
+}
+.tn-kids > .tn { padding-top: 18px; }
+.tn-kids > .tn::before {                 /* riser into this child */
+  content: ''; position: absolute; top: 9px; left: 50%; width: 1px; height: 9px;
+  background: var(--border-strong);
+}
+.tn-kids > .tn::after {                  /* rail; 7px = half the 14px gap */
+  content: ''; position: absolute; top: 9px; left: -7px; right: -7px; height: 1px;
+  background: var(--border-strong);
+}
+.tn-kids > .tn:first-child::after { left: 50%; }
+.tn-kids > .tn:last-child::after  { right: 50%; }
+
+.rx-pane { min-width: 0; }
+.rx-pane h3 { color: var(--text-dim); font-size: .9rem; }
+.rx-set {
+  background: var(--bg-sunken); border: 1px solid var(--border);
+  border-radius: var(--r-sm); padding: 8px 10px; line-height: 1.6;
+  overflow-x: auto; color: var(--text-dim);
+}
+
+/* membership drill */
+.drill-rows { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; }
+.drill-row {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  padding: 6px 8px; border-radius: var(--r-sm); background: var(--bg-sunken);
+}
+.drill-word {
+  font-family: var(--mono); min-width: 88px;
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: var(--r-sm); padding: 3px 8px;
+}
+.drill-row .btn-good.on { box-shadow: inset 0 0 0 1px var(--good); font-weight: 700; }
+.drill-row .btn-bad.on  { box-shadow: inset 0 0 0 1px var(--bad);  font-weight: 700; }
+
+/* algebra drill */
+.algebra {
+  display: flex; align-items: center; justify-content: center; gap: 14px;
+  flex-wrap: wrap; margin: 16px 0;
+  padding: 18px 12px; background: var(--bg-sunken);
+  border: 1px solid var(--border); border-radius: var(--r-md);
+}
+.algebra-side {
+  font-family: var(--mono); font-size: 1.15rem; color: var(--text);
+  background: var(--panel); border: 1px solid var(--border-strong);
+  border-radius: var(--r-sm); padding: 6px 14px;
+}
+.algebra-op { font-size: 1.3rem; color: var(--magic); font-weight: 700; }
+.algebra-q { font-size: 1.3rem; color: var(--text-faint); }
+
+.witness {
+  margin-top: 12px; padding: 12px 14px;
+  border: 1px dashed var(--magic); border-radius: var(--r-md);
+  background: var(--magic-soft);
+}
+.witness-w {
+  display: inline-block; margin: 6px 0 8px;
+  font-family: var(--mono); font-size: 1.25rem; font-weight: 700;
+  color: var(--magic); letter-spacing: .08em;
+}
+
+/* ==========================================================================
+   Automaton Lab
+   ========================================================================== */
+.gallery {
+  display: grid; gap: 10px; margin: 10px 0;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+}
+.gal {
+  text-align: left; padding: 10px 12px; line-height: 1.35;
+  background: var(--bg-sunken); border: 1px solid var(--border);
+  border-radius: var(--r-md);
+}
+.gal:hover { border-color: var(--accent); }
+.gal-t { font-weight: 650; font-size: .88rem; color: var(--text); margin-bottom: 2px; }
+.gal:hover .gal-t { color: var(--accent); }
+.gal-b { display: block; }
+
+.msg { margin: 8px 0 0; }
+
+.wt-task {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  margin: 14px 0 10px; padding: 10px 12px;
+  background: var(--bg-sunken); border: 1px solid var(--border-strong);
+  border-radius: var(--r-md);
+}
+.wt-task .mono { font-family: var(--mono); font-size: 1rem; color: var(--text); }
+.wt-worked {
+  border-left: 3px solid var(--good); background: var(--good-soft);
+  padding: 10px 14px; border-radius: 0 var(--r-sm) var(--r-sm) 0;
+  font-size: .86rem; line-height: 1.7; margin-bottom: 12px;
+}
+.wt-fields {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 10px;
+}
+.wt-fields label { color: var(--text-dim); font-family: var(--mono); }
+
+/* ==========================================================================
+   Subset Race
+   ========================================================================== */
+.sr-hud {
+  display: flex; align-items: center; gap: 22px; flex-wrap: wrap;
+  padding: 14px 18px;
+}
+.sr-stat { min-width: 62px; }
+.sr-k {
+  font-size: .66rem; text-transform: uppercase; letter-spacing: .1em;
+  color: var(--text-faint);
+}
+.sr-v { font-family: var(--mono); font-size: 1.3rem; font-weight: 700; color: var(--text); }
+.sr-v.hot { color: var(--warn); }
+.sr-big { font-family: var(--mono); font-size: 1.8rem; font-weight: 700; color: var(--accent); }
+.sr-timer { flex: 1 1 180px; min-width: 150px; }
+.sr-timer .bar { height: 8px; }
+
+.sr-prompt {
+  font-size: 1.25rem; text-align: center; margin: 14px 0;
+  padding: 14px; color: var(--text);
+  background: var(--bg-sunken); border: 1px solid var(--border-strong);
+  border-radius: var(--r-md); letter-spacing: .02em;
+}
+.sr-choices {
+  display: grid; gap: 10px; margin-top: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+}
+.sr-choice {
+  padding: 14px 10px; font-size: .95rem;
+  background: var(--panel); border: 1px solid var(--border-strong);
+  border-radius: var(--r-md);
+}
+.sr-choice:hover { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+
+@media (max-width: 720px) {
+  .algebra-side { font-size: 1rem; }
+  .sr-prompt { font-size: 1.05rem; }
+}

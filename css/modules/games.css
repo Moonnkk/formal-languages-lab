@@ -1,0 +1,207 @@
+/* Pumping Duel + Concept Atlas.
+   The duel needs real visual character — the Adversary has to feel like an
+   opponent — but every colour still comes from the shared token palette so the
+   light theme keeps working. */
+
+/* ======================================================= Pumping Duel ==== */
+.pd-stage { display: flex; flex-direction: column; gap: 14px; }
+
+/* --- the Adversary's speech --- */
+.pd-say { display: flex; gap: 12px; align-items: flex-start; margin: 4px 0 2px; }
+.pd-avatar {
+  flex: none; width: 38px; height: 38px; border-radius: 50%;
+  display: grid; place-items: center; font-size: 1.2rem;
+  background: var(--bad-soft); color: var(--bad);
+  border: 1px solid var(--bad); box-shadow: 0 0 0 4px var(--bad-soft);
+}
+.pd-bubble {
+  position: relative; background: var(--panel); border: 1px solid var(--border-strong);
+  border-radius: 4px var(--r-md) var(--r-md) var(--r-md);
+  padding: 10px 14px; font-size: .9rem; max-width: 62ch;
+}
+.pd-bubble::before {
+  content: ''; position: absolute; left: -7px; top: 10px; width: 0; height: 0;
+  border: 4px solid transparent; border-right-color: var(--border-strong); border-left: 0;
+}
+
+/* --- turn cards: the quantifier alternation, one card per quantifier --- */
+.pd-turn { border-left: 3px solid var(--border-strong); opacity: .72; transition: .2s; }
+.pd-turn.active { opacity: 1; border-left-color: var(--accent); box-shadow: var(--shadow); }
+.pd-turnhead { display: flex; align-items: center; gap: 10px; font-weight: 600;
+  font-size: .92rem; margin-bottom: 10px; }
+.pd-tno {
+  flex: none; width: 22px; height: 22px; border-radius: 50%; font-size: .72rem;
+  display: grid; place-items: center; font-family: var(--mono); font-weight: 700;
+  background: var(--bg-sunken); border: 1px solid var(--border-strong); color: var(--text-dim);
+}
+.pd-turn.active .pd-tno { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+/* --- progress ribbon --- */
+.pd-ribbon { display: flex; gap: 4px; margin-bottom: 4px; }
+.pd-step { flex: 1; height: 4px; border-radius: 20px; background: var(--bg-sunken); }
+.pd-step.done { background: var(--good); }
+.pd-step.now  { background: var(--accent); }
+
+/* --- the string, as coloured blocks. This is the heart of the game. --- */
+.pd-splitview { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 2px;
+  padding: 12px; background: var(--bg-sunken); border-radius: var(--r-md);
+  overflow-x: auto; }
+.pd-cells { display: flex; flex-wrap: wrap; gap: 2px; }
+.pd-cell {
+  display: inline-grid; place-items: center; min-width: 20px; height: 26px;
+  padding: 0 4px; border-radius: 3px; font-family: var(--mono); font-size: .82rem;
+  background: var(--panel); border: 1px solid var(--border); color: var(--text-dim);
+}
+.pd-cell.u { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+.pd-cell.v { background: var(--bad-soft);    border-color: var(--bad);    color: var(--bad); font-weight: 700; }
+.pd-cell.w { background: var(--good-soft);   border-color: var(--good);   color: var(--good); }
+.pd-cell.pd-elide { background: transparent; border-style: dashed; color: var(--text-faint);
+  font-size: .7rem; min-width: auto; }
+
+.pd-grp { display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 0 3px; border-radius: 4px; }
+.pd-grp-label { font-family: var(--mono); font-size: .68rem; color: var(--text-faint); }
+.pd-grp.v { animation: pdpop .22s ease; }
+.pd-grp.v.alt .pd-cell.v { filter: brightness(1.18); }
+.pd-grp.v.gone { opacity: .5; }
+@keyframes pdpop { from { transform: scale(.8); opacity: 0; } }
+
+.pd-pumped { border: 1px dashed var(--border-strong); }
+.pd-strline { font-family: var(--mono); font-size: .85rem; word-break: break-all;
+  color: var(--text-dim); }
+.pd-hrow { display: flex; align-items: center; gap: 12px; margin: 10px 0 4px; flex-wrap: wrap; }
+.pd-hlabel { font-family: var(--mono); font-size: .9rem; font-weight: 700; color: var(--accent); }
+.pd-slider { flex: 1; min-width: 160px; accent-color: var(--accent); }
+.pd-preview { margin-top: 8px; }
+
+.pd-input { font-family: var(--mono); min-width: 220px; }
+.pd-builder { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.pd-num { width: 78px; font-family: var(--mono); }
+.pd-toolbar { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+
+.pd-result { margin-top: 12px; }
+.pd-fb { margin-top: 10px; font-size: .9rem; }
+.pd-det { margin-top: 8px; font-size: .84rem; color: var(--text-dim); }
+.pd-moves { font-family: var(--mono); font-size: .78rem; color: var(--text-faint); }
+.pd-what { font-size: .84rem; color: var(--text-dim); margin-top: 6px; }
+.pd-who  { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em;
+  color: var(--text-faint); }
+.pd-q { font-family: var(--mono); font-size: .88rem; }
+
+/* --- language picker --- */
+.pd-langgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px; }
+.pd-langcard { cursor: pointer; transition: .15s; padding: 14px; }
+.pd-langcard:hover { border-color: var(--accent); transform: translateY(-1px); }
+.pd-langtex { font-family: var(--mono); font-size: .88rem; margin: 6px 0 8px; word-break: break-word; }
+
+/* --- the proof write-up: the transfer step --- */
+.pd-proof { border-left: 3px solid var(--magic); background: var(--magic-soft); }
+.pd-proofbody { font-size: .9rem; line-height: 1.7; }
+.pd-proofline { margin: 0 0 .7em; }
+.pd-blank {
+  display: inline-block; min-width: 60px; padding: 1px 8px; border-radius: 4px;
+  font-family: var(--mono); font-size: .86rem;
+  background: var(--bg-raised); border-bottom: 2px solid var(--magic); color: var(--magic);
+}
+.pd-gaps input { font-family: var(--mono); font-size: .84rem; padding: 3px 8px; }
+.pd-fix { color: var(--good); font-weight: 600; }
+.pd-ptext { white-space: pre-wrap; font-family: var(--mono); font-size: .8rem;
+  background: var(--bg-sunken); padding: 12px; border-radius: var(--r-sm);
+  color: var(--text-dim); overflow-x: auto; }
+
+.pd-rules { font-size: .88rem; }
+.pd-rules li { margin-bottom: .5em; }
+.pd-chosen { font-family: var(--mono); color: var(--accent); font-weight: 600; }
+.pd-target { font-family: var(--mono); font-size: .9rem; }
+.pd-head { margin-bottom: 10px; }
+
+/* ====================================================== Concept Atlas ==== */
+.at-toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 14px; }
+.at-search { flex: 1; min-width: 200px; }
+.at-sel { font-size: .85rem; }
+
+.at-tabs { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 14px;
+  border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+.at-tab { background: transparent; border-color: transparent; color: var(--text-dim); }
+.at-tab.on { background: var(--accent-soft); border-color: transparent; color: var(--accent); font-weight: 600; }
+
+.at-body { display: flex; flex-direction: column; gap: 10px; }
+.at-row { cursor: pointer; padding: 12px 14px; transition: .12s; }
+.at-row:hover { border-color: var(--accent); }
+.at-row.sel { border-color: var(--accent); background: var(--accent-soft); }
+.at-rowtitle { font-size: .95rem; }
+.at-def { font-size: .86rem; color: var(--text-dim); margin-top: 4px; }
+
+.at-detail { border-left: 3px solid var(--accent); margin-top: 10px; }
+.at-h3 { font-size: .78rem; text-transform: uppercase; letter-spacing: .08em;
+  color: var(--text-faint); margin-bottom: 6px; }
+.at-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.at-chip { font-size: .78rem; padding: 4px 10px; border-radius: 20px;
+  background: var(--panel); border: 1px solid var(--border); color: var(--text-dim); cursor: pointer; }
+.at-chip:hover { border-color: var(--accent); color: var(--accent); }
+.at-chip.good { background: var(--good-soft); border-color: transparent; color: var(--good); }
+.at-chip.warn { background: var(--warn-soft); border-color: transparent; color: var(--warn); }
+.at-chip.bad  { background: var(--bad-soft);  border-color: transparent; color: var(--bad); }
+.at-practice { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+
+.at-mapcard { padding: 16px; }
+.at-scroll { overflow-x: auto; padding: 6px 0; }
+.at-scroll svg { display: block; min-width: 100%; }
+.at-legend { gap: 8px; margin-top: 10px; align-items: center; }
+.at-key { width: 12px; height: 12px; border-radius: 3px; display: inline-block;
+  border: 1px solid var(--border-strong); }
+.at-key.k0 { background: var(--bg-sunken); }
+.at-key.k1 { background: var(--warn-soft); border-color: var(--warn); }
+.at-key.k2 { background: var(--good-soft); border-color: var(--good); }
+
+.at-table { width: 100%; border-collapse: collapse; font-size: .86rem; }
+.at-table td, .at-table th { padding: 6px 10px; border-bottom: 1px solid var(--border);
+  text-align: left; vertical-align: top; }
+.at-table th { color: var(--text-faint); font-size: .74rem; text-transform: uppercase;
+  letter-spacing: .06em; font-weight: 600; }
+.at-sym { font-family: var(--mono); color: var(--accent); white-space: nowrap; font-size: .92rem; }
+
+.at-thm { padding: 14px 16px; }
+.at-thm summary { cursor: pointer; font-weight: 600; font-size: .92rem; }
+.at-thm summary::marker { color: var(--text-faint); }
+.at-thmbody { margin-top: 12px; font-size: .88rem; line-height: 1.65; }
+.at-thmbody .at-table { margin-top: 10px; }
+
+@media (max-width: 620px) {
+  .pd-langgrid { grid-template-columns: 1fr; }
+  .pd-cell { min-width: 17px; height: 23px; font-size: .74rem; }
+}
+
+/* ---------- classes that were used in markup but never styled ---------- */
+/* Outcome banner for a finished duel round. */
+.pd-result.win  { border-left: 3px solid var(--good); background: var(--good-soft); }
+.pd-result.loss { border-left: 3px solid var(--bad);  background: var(--bad-soft); }
+.pd-result h2   { margin-top: 0; }
+
+/* Language-family heading in the picker; the hint must drop to its own line
+   on a narrow screen rather than running into the title. */
+.pd-famhead {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px;
+  margin: 26px 0 10px; font-size: 1.1rem;
+}
+.pd-famhead > span { flex: 1 1 100%; margin-left: 0 !important; }
+@media (min-width: 620px) { .pd-famhead > span { flex: 0 1 auto; } }
+
+/* Atlas dependency graph (SVG). */
+.at-unithead {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px;
+  margin: 24px 0 8px; font-size: 1.05rem; color: var(--text-dim);
+}
+.at-graph { display: block; min-width: 520px; }
+.at-edge { stroke: var(--border-strong); stroke-width: 1.2; fill: none; }
+.at-edge.hot { stroke: var(--accent); stroke-width: 2; }
+.at-node { cursor: pointer; }
+.at-node.dim { opacity: .3; }
+.at-node:focus { outline: none; }
+.at-node:focus .at-nbg, .at-node.sel .at-nbg { stroke: var(--accent); stroke-width: 2; }
+.at-nbg { fill: var(--bg-sunken); stroke: var(--border-strong); stroke-width: 1; }
+.at-nfill { fill: var(--good); stroke: none; pointer-events: none; }
+.at-nlabel {
+  font-family: var(--sans); font-size: 10px; fill: var(--text);
+  text-anchor: middle; pointer-events: none;
+}

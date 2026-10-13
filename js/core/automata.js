@@ -888,18 +888,42 @@ export function classify(a) {
 
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
-/** BFS layers from the start state; unreachable states get their own column. */
+/**
+ * Columns by longest path from the start state, ignoring the edges that close
+ * a cycle (DFS back edges). A Thompson NFA then reads left to right: the exit
+ * of r* sits after its body, not next to the start. Unreachable states get
+ * their own column.
+ */
 export function layout(a, opt = {}) {
   const dx = opt.dx || 120, dy = opt.dy || 78;
   const out = outMap(a);
-  const layer = new Map([[a.start, 0]]);
-  const order = [a.start];
-  const queue = [a.start];
-  while (queue.length) {
-    const q = queue.shift();
-    for (const t of out.get(q) || []) {
-      if (!layer.has(t.to)) { layer.set(t.to, layer.get(q) + 1); order.push(t.to); queue.push(t.to); }
+  const succ = q => [...new Set((out.get(q) || []).map(t => t.to))];
+
+  // (a) DFS: drop back edges, record a reverse postorder (a topological order of the rest)
+  const backEdge = new Set(), onStack = new Set(), seen = new Set(), post = [];
+  const dfs = q => {
+    seen.add(q); onStack.add(q);
+    for (const r of succ(q)) {
+      if (onStack.has(r)) backEdge.add(q + '\u0000' + r);
+      else if (!seen.has(r)) dfs(r);
     }
+    onStack.delete(q); post.push(q);
+  };
+  dfs(a.start);
+  const topo = post.reverse();
+
+  // (b) longest path over the remaining DAG
+  const layer = new Map([[a.start, 0]]);
+  for (const q of topo) {
+    for (const r of succ(q)) {
+      if (backEdge.has(q + '\u0000' + r)) continue;
+      layer.set(r, Math.max(layer.get(r) ?? 0, layer.get(q) + 1));
+    }
+  }
+  // within a column keep BFS discovery order, so siblings stay in input order
+  const order = [a.start], queue = [a.start], found = new Set([a.start]);
+  while (queue.length) {
+    for (const r of succ(queue.shift())) if (!found.has(r)) { found.add(r); order.push(r); queue.push(r); }
   }
   let maxLayer = 0;
   layer.forEach(v => { if (v > maxLayer) maxLayer = v; });
@@ -920,7 +944,7 @@ export function layout(a, opt = {}) {
   const nCols = colWidth.length;
   const pad = opt.pad || 34;
   const xs = []; let x = pad + 26;
-  for (let l = 0; l < nCols; l++) { xs[l] = x + (colWidth[l] || 40) / 2; x += (colWidth[l] || 40) + dx * 0.45 + 40; }
+  for (let l = 0; l < nCols; l++) { xs[l] = x + (colWidth[l] || 40) / 2; x += (colWidth[l] || 40) + dx * 0.45 + 16; }
 
   const tallest = Math.max(1, ...[...cols.values()].map(c => c.length));
   const height = pad * 2 + (tallest - 1) * dy + 76;
@@ -985,6 +1009,10 @@ export function renderAutomaton(a, opts = {}) {
   }
 
   const edgeSvg = [], labelSvg = [];
+  // vertical extent of everything drawn, so arcs below/above the nodes fit the viewBox
+  let minY = Infinity, maxY = -Infinity;
+  const extend = (...ys) => { for (const y of ys) { if (y < minY) minY = y; if (y > maxY) maxY = y; } };
+  for (const n of Object.values(L.nodes)) extend(n.y - n.ry, n.y + n.ry);
   for (const [key, syms] of groups) {
     const [from, to] = key.split('\u0000');
     const A = L.nodes[from], B = L.nodes[to];
@@ -1002,24 +1030,36 @@ export function renderAutomaton(a, opts = {}) {
       edgeSvg.push(`<path d="${d}" fill="none" stroke="${color}" stroke-width="${w}"/>`);
       edgeSvg.push(arrowHead(x + 9, y, 0.55, 0.83, color));
       labelSvg.push(`<text x="${x}" y="${(y - 36).toFixed(1)}" text-anchor="middle" font-size="11.5" fill="${tcolor}" font-family="var(--mono)">${esc(text)}</text>`);
+      extend(y - 50);
       continue;
     }
-    const back = B.x < A.x || (B.x === A.x && B.y < A.y);
+    // Forward edges arc above the row, back edges below it, so a pair p⇄q never
+    // overlaps. An edge that skips columns arcs higher, clearing the nodes (and
+    // their self loops) in between.
+    const span = B.layer - A.layer;
+    const back = span < 0 || (span === 0 && B.y < A.y);
     const both = groups.has(to + '\u0000' + from);
-    let bend = back ? 46 : (both ? 30 : 16);
-    if (Math.abs(A.y - B.y) > 4 && !back && !both) bend = 10;
+    const skip = Math.max(0, Math.abs(span) - 1);
+    let peak;                                            // apex distance from the chord
+    if (span === 0) peak = 24;
+    else if (back) peak = Math.min(28 + 36 * skip, 120);
+    else if (skip) peak = Math.min(70 + 32 * (skip - 1), 110);
+    else peak = both ? 18 : 0;
     const mx = (A.x + B.x) / 2, my = (A.y + B.y) / 2;
     const vx = B.x - A.x, vy = B.y - A.y;
     const len = Math.hypot(vx, vy) || 1;
-    const sign = back ? 1 : -1;
-    const cx = mx + (-vy / len) * bend * sign, cy = my + (vx / len) * bend * sign;
+    let nx = vy / len, ny = -vx / len;                  // left of travel: up for →, down for ←
+    if (!peak && ny > 0) { nx = -nx; ny = -ny; }         // straight edge: label on the upper side
+    const cx = mx + nx * 2 * peak, cy = my + ny * 2 * peak;  // quadratic apex = half the control offset
     const [sx, sy] = boundaryPoint(A, cx, cy);
     const [ex, ey, ux, uy] = boundaryPoint(B, cx, cy);
     const d = `M ${sx.toFixed(1)} ${sy.toFixed(1)} Q ${cx.toFixed(1)} ${cy.toFixed(1)}, ${ex.toFixed(1)} ${ey.toFixed(1)}`;
     edgeSvg.push(`<path d="${d}" fill="none" stroke="${color}" stroke-width="${w}"/>`);
     edgeSvg.push(arrowHead(ex, ey, -ux, -uy, color));
-    const lx = 0.25 * sx + 0.5 * cx + 0.25 * ex, ly = 0.25 * sy + 0.5 * cy + 0.25 * ey;
-    labelSvg.push(`<text x="${lx.toFixed(1)}" y="${(ly - 4).toFixed(1)}" text-anchor="middle" font-size="11.5" fill="${tcolor}" font-family="var(--mono)" class="aut-edge-label">${esc(text)}</text>`);
+    const ax = 0.25 * sx + 0.5 * cx + 0.25 * ex, ay = 0.25 * sy + 0.5 * cy + 0.25 * ey;
+    const lx = ax + nx * 10, ly = ay + ny * 10 + 4;     // just outside the arc, baseline-centred
+    labelSvg.push(`<text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" text-anchor="middle" font-size="11.5" fill="${tcolor}" font-family="var(--mono)" class="aut-edge-label" paint-order="stroke" stroke="var(--bg-sunken)" stroke-width="3">${esc(text)}</text>`);
+    extend(ay, ly - 12, ly + 4);
   }
 
   const nodeSvg = [];
@@ -1048,9 +1088,10 @@ export function renderAutomaton(a, opts = {}) {
       arrowHead(s.x - s.rx - 3, y0, 1, 0, hi.has(a.start) ? C.hi : C.edge);
   }
 
-  const W = Math.ceil(L.width), H = Math.ceil(L.height);
-  const title = opts.title ? `<text x="12" y="18" font-size="11" fill="var(--text-faint)">${esc(opts.title)}</text>` : '';
-  return `<svg class="aut" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" preserveAspectRatio="xMidYMid meet" style="max-width:100%;height:auto;overflow:visible">${title}${edgeSvg.join('')}${startArrow}${labelSvg.join('')}${nodeSvg.join('')}</svg>`;
+  const W = Math.ceil(L.width);
+  const top = Math.floor(minY - (opts.title ? 32 : 14)), H = Math.ceil(maxY + 14 - top);
+  const title = opts.title ? `<text x="12" y="${top + 18}" font-size="11" fill="var(--text-faint)">${esc(opts.title)}</text>` : '';
+  return `<svg class="aut" viewBox="0 ${top} ${W} ${H}" width="${W}" height="${H}" preserveAspectRatio="xMidYMid meet" style="max-width:100%;height:auto;overflow:visible">${title}${edgeSvg.join('')}${startArrow}${labelSvg.join('')}${nodeSvg.join('')}</svg>`;
 }
 
 /* ========================================================================

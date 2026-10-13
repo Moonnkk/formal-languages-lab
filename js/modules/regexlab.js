@@ -283,9 +283,10 @@ export default {
       box.appendChild(h('p.small.faint',
         `${P.dfa.states.length} states → ${P.min.states.length} states. ` +
         'Every state of a minimal DFA is a distinct residual language.'));
-      if (P.min.classLabels) {
-        box.appendChild(h('div.small.faint.mono', { style: { marginTop: '6px' } },
-          P.min.states.map(q => `${P.min.labels[q]} = ${P.min.classLabels[q]}`).join('   ')));
+      if (P.min.classes) {
+        // name each minimal state by the subset-DFA block it came from, matching the log above
+        box.appendChild(h('div.row', { style: { gap: '6px', flexWrap: 'wrap', marginTop: '6px' } },
+          ...P.min.states.map(q => h('span.tag.mono', `${P.min.labels[q]} = ${setLabel(P.min.classes[q])}`))));
       }
       return box;
     }

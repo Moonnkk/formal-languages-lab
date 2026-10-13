@@ -70,7 +70,7 @@ export const questions = [
     explain: '$L(\\emptyset)$ = {} and $L(\\epsilon)$ = {$\\lambda$}. This is exactly why $\\emptyset \\cdot r \\doteq \\emptyset$ but $\\epsilon \\cdot r \\doteq r$.' },
 
   { id: 'q-rexsyn-2', concept: 'regex-syntax', level: 2,
-    stem: 'How is $a + b \\cdot c^*$ parsed, given the lecture`s precedences?',
+    stem: 'How is $a + b \\cdot c^*$ parsed, given the lecture’s precedences?',
     choices: [
       '$(a+b) \\cdot (c^*)$',
       '$a + (b \\cdot (c^*))$',
@@ -156,7 +156,7 @@ export const questions = [
 
   /* ================= u2 ================================================= */
   { id: 'q-scan-1', concept: 'scanner', level: 2,
-    stem: 'In a scanner built with Python`s `re` module, why must keyword patterns be listed before the identifier pattern?',
+    stem: 'In a scanner built with Python’s `re` module, why must keyword patterns be listed before the identifier pattern?',
     choices: [
       'Because `re` picks the longest match, and keywords are shorter.',
       'Because `re` picks the first alternative (left to right) that matches at the position.',
@@ -164,7 +164,7 @@ export const questions = [
       'Because the master pattern is alphabetically sorted.' ],
     answer: 1,
     why: {
-      0: 'Assuming **maximal munch**. Some scanner generators do choose the longest alternative; Python`s `re` explicitly does not — it takes the first alternative that matches.',
+      0: 'Assuming **maximal munch**. Some scanner generators do choose the longest alternative; Python’s `re` explicitly does not — it takes the first alternative that matches.',
       2: '`[a-z]+` matches `while` perfectly well. Nothing in the regex engine knows about reserved words; the ordering is the only defence.',
       3: 'The master pattern is a `|`-join in the order **you** wrote the pairs. Nothing sorts it.' },
     explain: 'The remark in the scanner chapter: `re` chooses the **first** matching alternative, so specific patterns must precede general ones. `re.findall(r"[0-9]|[1-9][0-9]*", "42")` returns two single digits for exactly this reason.' },
@@ -184,7 +184,7 @@ export const questions = [
     explain: '`NEWLINE` counts lines, `SKIP` discards blanks and tabs, `MISMATCH` sits last and catches any character that no real token pattern accepted, turning silent skipping into a reported error.' },
 
   { id: 'q-dfa-1', concept: 'dfa', level: 1,
-    stem: 'What is the signature of $\\delta$ in the lecture`s DFA definition?',
+    stem: 'What is the signature of $\\delta$ in the lecture’s DFA definition?',
     choices: [
       '$\\delta: Q \\times \\Sigma \\to Q$',
       '$\\delta: Q \\times \\Sigma \\to Q \\cup$ {$\\Omega$}',
@@ -233,7 +233,7 @@ export const questions = [
       0: '`abab` dies: after 0-a->0-b->1-a->1 the final b has $\\delta(1,b) = \\Omega$. A second b is fatal.',
       2: 'Same death, immediately: 0-b->1 then b kills it. The language allows exactly one b.',
       3: 'No b at all, so the run ends in state 0, which is not accepting. $L$ = $a^* \\cdot b \\cdot a^*$ requires one b.' },
-    explain: '$L(F)$ = $L(a^* \\cdot b \\cdot a^*)$: exactly one b, any number of a`s around it. `aabaa` fits.' },
+    explain: '$L(F)$ = $L(a^* \\cdot b \\cdot a^*)$: exactly one b, any number of a’s around it. `aabaa` fits.' },
 
   { id: 'q-dfarun-2', concept: 'dfa-run', level: 2,
     stem: 'When is $\\lambda \\in L(F)$ for a DFA $F$?',
@@ -275,7 +275,7 @@ export const questions = [
       0: 'Confusing **conciseness** with **expressiveness**. The subset construction converts any NFA (with $\\epsilon$-moves) into an equivalent DFA; only the state count changes, possibly exponentially.',
       2: 'DFAs die too, via $\\Omega$. And dying is not a weakness — it is just rejection along one path.',
       3: 'Context-free languages need a **stack** (a pushdown automaton). $a^{k}b^{k}$ is context-free but not regular, so no NFA recognises it.' },
-    explain: 'They are equivalent in power: `det(F)` accepts $L(F)$. NFAs buy smaller descriptions, not larger language classes — that is Kleene`s 1956 result in one direction.' },
+    explain: 'They are equivalent in power: `det(F)` accepts $L(F)$. NFAs buy smaller descriptions, not larger language classes — that is Kleene’s 1956 result in one direction.' },
 
   { id: 'q-ec-1', concept: 'eclosure', level: 2,
     stem: 'NFA with $\\epsilon$-edges $q_0 \\to q_1$, $q_1 \\to q_2$, and an `a`-edge $q_2 \\to q_3$. What is `ec(q_0)`?',
@@ -567,7 +567,7 @@ export const questions = [
     why: {
       0: 'Non-emptiness says $v$ contains **something**, not what. It is needed, but it is not the reason $v$ avoids the b block.',
       2: '"Middle" is not a constraint of the lemma; $v$ may sit anywhere inside the first $n$ characters.',
-      3: 'You may not choose the split — that is the adversary`s move, which is why the $|uv| \\leq n$ clause matters so much.' },
+      3: 'You may not choose the split — that is the adversary’s move, which is why the $|uv| \\leq n$ clause matters so much.' },
     explain: '$|uv| \\leq n$ confines $uv$ to the first $n$ characters, all of which are `a`. So $v = a^{k}$ with $k > 0$; taking $h = 0$ then removes `a`s without removing `b`s and breaks the balance.' },
 
   { id: 'q-nonreg-3', concept: 'nonregular', level: 2,
@@ -663,7 +663,7 @@ export const questions = [
       0: 'Too weak. `2*3+4` has many derivations differing only in the **order** of independent rewrites, all yielding one tree. Trees are the invariant.',
       2: 'Alternatives are entirely normal — every interesting grammar has them.',
       3: 'Conflicts and ambiguity are different notions. An unambiguous grammar can have conflicts (look-ahead and mysterious conflicts), which is exactly why LR(1) and LALR are distinguished.' },
-    explain: 'Ambiguity = two distinct parse trees for one string. And since ambiguity is equivalent to Post`s correspondence problem, it is **undecidable** in general.' },
+    explain: 'Ambiguity = two distinct parse trees for one string. And since ambiguity is equivalent to Post’s correspondence problem, it is **undecidable** in general.' },
 
   { id: 'q-amb-2', concept: 'ambiguity', level: 3,
     stem: 'Which statement is correct?',
@@ -675,7 +675,7 @@ export const questions = [
     answer: 0,
     why: {
       1: 'The converse fails. An unambiguous grammar can still be non-SLR — the notes` grammar $s \\to a$`x`$a$`y` | $b$`y`$b$`x` with $a,b \\to \\lambda$ is unambiguous but has a reduce-reduce conflict.',
-      2: 'Undecidable: equivalent to Post`s correspondence problem.',
+      2: 'Undecidable: equivalent to Post’s correspondence problem.',
       3: 'Lark will happily **build** a parser by shifting, but the grammar is still not LALR(1) — the generated parser simply accepts one reading and silently drops the other.' },
     explain: 'Every SLR (and LALR) grammar is unambiguous, so an ambiguous grammar must produce a conflict. The implication runs only that way.' },
 
@@ -775,7 +775,7 @@ export const questions = [
     explain: 'Reading consumes the token $x_{j+1}$ and puts the advanced item into $Q_{j+1}$. Prediction and completion stay inside $Q_j$ — hence the inner fixed-point loop.' },
 
   { id: 'q-ear-3', concept: 'earley', level: 3,
-    stem: 'Which is the correct complexity picture for Earley`s algorithm?',
+    stem: 'Which is the correct complexity picture for Earley’s algorithm?',
     choices: [
       'Always $O(n^{3})$, like CYK.',
       '$O(n^{3})$ in general, $O(n^{2})$ if unambiguous, linear for LR(1) and LL(k) grammars.',
@@ -877,7 +877,7 @@ export const questions = [
       'Only in `Follow` sets.' ],
     answer: 1,
     why: {
-      0: 'The convention of many textbooks (and the Dragon Book), but **not** this lecture`s. Here `nullable(a)` carries that information, and `First` stays a set of tokens.',
+      0: 'The convention of many textbooks (and the Dragon Book), but **not** this lecture’s. Here `nullable(a)` carries that information, and `First` stays a set of tokens.',
       2: 'No special case for the start symbol exists.',
       3: '`Follow` sets contain tokens plus the EOF marker `$`. $\\lambda$ is not a token and appears in neither.' },
     explain: '`First`$(\\lambda)$ = {} (empty set) and `First`$(a\\beta)$ = `First(a)` $\\cup$ `First`$(\\beta)$ **if** $a \\Rightarrow^* \\lambda$. Nullability is tracked by the separate `nullable` predicate.' },
@@ -1119,7 +1119,7 @@ export const questions = [
     answer: 1,
     why: {
       0: 'That is `.limit locals`. The two directives are easy to swap, and the verifier will reject the class if either is too small.',
-      2: 'Call depth is the JVM`s business, not the method`s declaration.',
+      2: 'Call depth is the JVM’s business, not the method’s declaration.',
       3: 'A JVM method returns at most one value.' },
     explain: 'The JVM demands the maximum stack height in advance — a security feature against stack-overflow exploits. It is exactly the second component returned by `compile_expr`.' },
 

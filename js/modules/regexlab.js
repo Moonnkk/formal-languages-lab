@@ -325,11 +325,11 @@ export default {
 
       const left = h('div.rx-pane',
         h('h3', { html: tex('$A(r)$ — the set of active states') }),
-        h('div.small.mono.rx-set', { html: tex(
+        h('div.small.mono.rx-set', { html:
           S.pos === 0
-            ? 'ec({' + P.nfa.start + '}) = ' + setLabel(nstep.set)
-            : 'δ(' + setLabel(nstep.before) + ',' + nstep.sym + ') = ' + (nstep.move.length ? setLabel(nstep.move) : '{}') +
-              '<br>ec(…) = ' + (nstep.set.length ? setLabel(nstep.set) : '{}  — the NFA died')) }),
+            ? tex('ec({' + P.nfa.start + '}) = ' + setLabel(nstep.set))
+            : tex('δ(' + setLabel(nstep.before) + ',' + nstep.sym + ') = ' + (nstep.move.length ? setLabel(nstep.move) : '{}')) +
+              '<br>' + tex('ec(…) = ' + (nstep.set.length ? setLabel(nstep.set) : '{}  — the NFA died')) }),
         h('div.aut-wrap', { html: renderAutomaton(P.nfa, {
           highlight: nstep.set,
           dim: P.nfa.states.filter(q => !nstep.set.includes(q)),

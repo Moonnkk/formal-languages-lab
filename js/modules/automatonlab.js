@@ -249,10 +249,10 @@ export default {
       }
 
       runCard.appendChild(tape(S.word, S.pos));
-      runCard.appendChild(h('div.small.mono.rx-set', { html: tex(S.pos === 0
-        ? 'ec({' + S.aut.start + '}) = ' + setLabel(st.set)
-        : 'δ(' + setLabel(st.before) + ',' + st.sym + ') = ' + (st.move.length ? setLabel(st.move) : '{}') +
-          (c.eps ? '<br>ec(…) = ' + (st.set.length ? setLabel(st.set) : '{}') : '')) }));
+      runCard.appendChild(h('div.small.mono.rx-set', { html: S.pos === 0
+        ? tex('ec({' + S.aut.start + '}) = ' + setLabel(st.set))
+        : tex('δ(' + setLabel(st.before) + ',' + st.sym + ') = ' + (st.move.length ? setLabel(st.move) : '{}')) +
+          (c.eps ? '<br>' + tex('ec(…) = ' + (st.set.length ? setLabel(st.set) : '{}')) : '') }));
       if (!st.set.length) runCard.appendChild(h('div.callout.bad.small',
         { html: tex('The machine is dead: δ hit $\\Omega$. Everything after this point is irrelevant.') }));
       runCard.appendChild(h('div.aut-wrap', { html: renderAutomaton(S.aut, {

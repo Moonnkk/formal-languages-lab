@@ -99,14 +99,18 @@ export default {
       /* ---- method note: why this app works the way it does ---- */
       view.appendChild(h('details.card.method', { style: { marginTop: '24px' } },
         h('summary', 'Why this trainer nags you instead of explaining things'),
-        h('div.small.muted', { html: tex(
+        // tex() escapes HTML, so line breaks go between the rendered pieces, not inside them
+        h('div.small.muted', { html: [
           'Re-reading a chapter feels productive and is nearly worthless — the fluency you feel is the *text* being easy, not the *idea* being learned. ' +
-          'Four things reliably work instead, and this app is built out of them:<br><br>' +
-          '<strong>Retrieval.</strong> Being asked, and struggling, before being told. Every module here asks first.<br>' +
-          '<strong>Spacing.</strong> Meeting a fact again just as it fades. That is the Daily Review scheduler.<br>' +
-          '<strong>Interleaving.</strong> Mixing topics rather than blocking them, so you have to *choose* the method, not just apply the obvious one. Quiz Arena defaults to mixed.<br>' +
-          '<strong>Generation.</strong> Producing an explanation in your own words. That is Explain It Back, and it is the one most students skip.<br><br>' +
-          'The labs exist because automata and parse tables are *procedures*. You cannot memorise a procedure; you have to run it, be wrong, and see where it broke.') })));
+          'Four things reliably work instead, and this app is built out of them:',
+          '',
+          '**Retrieval.** Being asked, and struggling, before being told. Every module here asks first.',
+          '**Spacing.** Meeting a fact again just as it fades. That is the Daily Review scheduler.',
+          '**Interleaving.** Mixing topics rather than blocking them, so you have to *choose* the method, not just apply the obvious one. Quiz Arena defaults to mixed.',
+          '**Generation.** Producing an explanation in your own words. That is Explain It Back, and it is the one most students skip.',
+          '',
+          'The labs exist because automata and parse tables are *procedures*. You cannot memorise a procedure; you have to run it, be wrong, and see where it broke.',
+        ].map(tex).join('<br>') })));
     }
 
     function tile(label, n, color, sub, onclick) {
